@@ -2,7 +2,7 @@ export const categories = [
     'Alkohol',
     'Nápoj',
     'Jídlo',
-    'Nemoci',
+    // 'Nemoci',
     'Oblečení',
     'Skladba/Píseň',
     'Film',

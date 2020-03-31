@@ -1,6 +1,7 @@
 import React from 'react';
 import { SetupGame } from './screens/SetupGame';
 import { GameScreen } from './screens/GameScreen';
+import { Evaluation } from './screens/Evaluation';
 import './screens.css';
 
 export class App extends React.Component {
@@ -8,6 +9,7 @@ export class App extends React.Component {
         super(props);
         this.state = {
             screen: "setup",
+            // screen: "evaluation",
             gameProgress: {
                 round: 1,
                 word: 1,
@@ -22,11 +24,29 @@ export class App extends React.Component {
                 players: [],
                 game: []
             },
+            evaluation: {
+                categories: [],
+                answers: [],
+                results: []
+            }
         }
         this.setGame = this.setGame.bind(this);
         this.setData = this.setData.bind(this);
         this.updateGameProgress = this.updateGameProgress.bind(this);
         this.saveAnswer = this.saveAnswer.bind(this);
+        this.prepareEvaluation = this.prepareEvaluation.bind(this);
+    }
+
+    prepareEvaluation(data) {
+        const [cat, ans, res] = data;
+
+        let currentEvaluation = JSON.parse(JSON.stringify(this.state.evaluation));
+
+        currentEvaluation.categories = cat;
+        currentEvaluation.answers = ans;
+        currentEvaluation.results = res;
+
+        this.setState({ evaluation: currentEvaluation });
     }
 
     setData(data) {
@@ -69,6 +89,7 @@ export class App extends React.Component {
             if (state.gameProgress.round + 1 > state.gameData.settings.roundsNum) {
                 console.log("round: ", state.gameProgress.round, " word: ", state.gameProgress.word);
                 console.log("gameEnd"); // @todo => switch to next - evaluation screen
+                this.setState({ screen: "evaluation" });
                 return;
             }
 
@@ -104,6 +125,17 @@ export class App extends React.Component {
                     gameProgress={this.state.gameProgress}
                     saveAnswer={this.saveAnswer}
                     updateGameProgress={this.updateGameProgress}
+                />
+            );
+        }
+        if (this.state.screen === "evaluation") {
+            return (
+                < Evaluation
+                    gameData={this.state.gameData.game}
+                    prepareEvaluation={this.prepareEvaluation}
+                // gameProgress={this.state.gameProgress}
+                // saveAnswer={this.saveAnswer}
+                // updateGameProgress={this.updateGameProgress}
                 />
             );
         }

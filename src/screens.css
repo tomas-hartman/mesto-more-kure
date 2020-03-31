@@ -18,11 +18,8 @@ table {
 
 button {
     margin-top: 40px;
-    /*! background-color: darkorange; */
-    /*! padding: 15px; */
     width: 250px;
     height: 35px;
-    /*! font-size: 1.15rem; */
     border: none;
     border-radius: 10px;
     box-shadow: 0px 5px 0px 6px black;
@@ -30,17 +27,13 @@ button {
 }
 
 .headline {
-    /*! position: absolute; */
     top: 10%;
 }
 
 .control-container {
     height: 45px;
-    /*! border: 1px solid black; */
-    /*! box-sizing: border-box; */
     border-radius: 10px;
     box-shadow: 0px 4px 0px 4px;
-    /*! width: 140%; */
     width: 250px;
 }
 
@@ -67,8 +60,6 @@ button {
 }
 
 .letter {
-    /*! position: absolute; */
-    /*! top: 40px; */
     font-size: 4rem;
     font-style: italic;
     margin-top: 40px;
@@ -84,4 +75,49 @@ button {
 
 .letter:after {
     content: "“";
+}
+
+.eval-btns-container {
+    box-shadow: 0px 5px 0px 6px black;
+    border-radius: 6px;
+}
+
+.eval-btns button {
+    margin: 0;
+    width: 50%;
+    box-shadow: none;
+}
+
+.eval-table {
+    width: 100%;
+    padding: 0px 15px;
+}
+
+.eval-table th {
+    width: 120px;
+}
+
+.eval-table td.eval-btns {
+    width: 80px;
+}
+
+.eval-fail {
+    border-radius: 6px 0 0 6px;
+}
+
+.eval-fail.selected {
+    background-color: firebrick;
+}
+
+.eval-good {
+    border-radius: 0 6px 6px 0;
+}
+
+.eval-good.selected {
+    background-color: mediumseagreen;
+}
+
+.eval-next {
+    width: 100% !important;
+    border-radius: 6px;
 }

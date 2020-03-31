@@ -4,6 +4,13 @@ export class GameScreen extends React.Component {
     constructor(props) {
         super(props);
         this.onClick = this.onClick.bind(this);
+        this._handleKeyDown = this._handleKeyDown.bind(this);
+    }
+
+    _handleKeyDown(e) {
+        if (e.key === "Enter") {
+            this.onClick();
+        }
     }
 
     onClick() {
@@ -13,7 +20,7 @@ export class GameScreen extends React.Component {
 
         console.log(value);
 
-        // value = "";
+        document.querySelector("input").value = "";
 
         this.props.updateGameProgress();
 
@@ -48,8 +55,8 @@ export class GameScreen extends React.Component {
                     </div>
                     <div className="control-content">
                         <div className="control-container">
-                            <input type="text" />
-                            <button onClick={this.onClick}>OK</button>
+                            <input type="text" onKeyDown={this._handleKeyDown} />
+                            <button type="submit" onClick={this.onClick}>OK</button>
                         </div>
                     </div>
                 </div>
