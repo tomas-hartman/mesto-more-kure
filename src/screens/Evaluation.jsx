@@ -153,7 +153,7 @@ export class Evaluation extends React.Component {
         const gameData = this.props.gameData;
         let categories = [];
         let answers = [];
-        // let results = [];
+        let results = [];
 
         for (let i in gameData) {
             const key = Object.keys(gameData[i].answers);
