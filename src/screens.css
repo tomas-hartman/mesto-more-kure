@@ -121,3 +121,26 @@ button {
     width: 100% !important;
     border-radius: 6px;
 }
+
+table.res-table {
+    border-collapse: collapse;
+    border: 1px solid;
+    box-shadow: 0px 9px 0px 10px;
+}
+
+tr.res-item {
+    background-color: indianred;
+}
+
+tr.res-item:nth-of-type(2) {
+    background-color: lightcoral;
+}
+
+.res-item td,
+.res-item th {
+    padding: 2px 5px;
+}
+
+.res-item td {
+    text-align: right;
+}

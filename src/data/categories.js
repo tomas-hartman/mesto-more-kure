@@ -22,5 +22,6 @@ export const categories = [
     'Volnočasová aktivita',
     'Hudební skupina',
     'Nábytek',
-    'Řeka'
+    'Řeka',
+    'Značka/Brand'
 ];

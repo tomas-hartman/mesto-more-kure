@@ -2,6 +2,7 @@ import React from 'react';
 import { SetupGame } from './screens/SetupGame';
 import { GameScreen } from './screens/GameScreen';
 import { Evaluation } from './screens/Evaluation';
+import { Results } from './screens/Results';
 import './screens.css';
 
 export class App extends React.Component {
@@ -9,6 +10,7 @@ export class App extends React.Component {
         super(props);
         this.state = {
             screen: "setup",
+            // screen: "results",
             // screen: "evaluation",
             gameProgress: {
                 round: 1,
@@ -26,8 +28,8 @@ export class App extends React.Component {
             },
             evaluation: {
                 categories: [],
-                answers: [],
-                results: []
+                answers: [], // musí být per player!
+                results: [] // musí být per player!
             }
         }
         this.setGame = this.setGame.bind(this);
@@ -35,6 +37,7 @@ export class App extends React.Component {
         this.updateGameProgress = this.updateGameProgress.bind(this);
         this.saveAnswer = this.saveAnswer.bind(this);
         this.prepareEvaluation = this.prepareEvaluation.bind(this);
+        this.saveEvaluation = this.saveEvaluation.bind(this);
     }
 
     prepareEvaluation(data) {
@@ -63,6 +66,17 @@ export class App extends React.Component {
         currentGamedata[type].push(...value);
 
         this.setState({ gameData: currentGamedata })
+    }
+
+    saveEvaluation(type, value) {
+        let currentData = JSON.parse(JSON.stringify(this.state.evaluation));
+
+        console.log(type);
+        console.log(value);
+
+        currentData[type] = value;
+
+        this.setState({ evaluation: currentData });
     }
 
     saveAnswer(player, value) {
@@ -133,11 +147,21 @@ export class App extends React.Component {
                 < Evaluation
                     gameData={this.state.gameData.game}
                     prepareEvaluation={this.prepareEvaluation}
+                    saveEvaluationToApp={this.saveEvaluation}
+                    setData={this.setData}
                 // gameProgress={this.state.gameProgress}
                 // saveAnswer={this.saveAnswer}
                 // updateGameProgress={this.updateGameProgress}
                 />
             );
+        }
+
+        if (this.state.screen === "results") {
+            return (
+                < Results
+                    results={this.state.evaluation.results}
+                />
+            )
         }
     }
 };

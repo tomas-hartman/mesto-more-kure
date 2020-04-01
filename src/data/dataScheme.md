@@ -116,6 +116,9 @@ Then waits for client response.
 
 12. Only `players[players.length+1]` validates the answers (circulary)
 13. TBA validation rules - will check if answers are the same etc.
+
+- validate always when submiting answer - check if undefined, first letter wrong etc. then `null`
+
 14. Client validates the data and shows the rest of them to player to evaluate them, then, points are counted together and sent to server
 
 @TODO data structure
