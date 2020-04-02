@@ -1,0 +1,23 @@
+{
+  "name": "mesto-moru-kure-server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomas-hartman/mesto-more-kure.git"
+  },
+  "author": "Tomas Hartman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomas-hartman/mesto-more-kure/issues"
+  },
+  "homepage": "https://github.com/tomas-hartman/mesto-more-kure#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}
