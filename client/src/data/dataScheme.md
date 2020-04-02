@@ -40,7 +40,7 @@ One round example:
 
 ```js
 {
-    letters: ["r","e","m"],
+    rounds: ["r","e","m"],
     categories: [
         ["osobnost", "mesto", "jidlo", "reka", "stat"], // generated randomly for each round
         ...

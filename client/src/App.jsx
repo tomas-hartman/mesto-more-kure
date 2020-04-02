@@ -1,9 +1,12 @@
 import React from 'react';
+import socket from "./SocketContext";
 import { SetupGame } from './screens/SetupGame';
 import { GameScreen } from './screens/GameScreen';
 import { Evaluation } from './screens/Evaluation';
 import { Results } from './screens/Results';
 import './screens.css';
+
+// const socket = io();
 
 export class App extends React.Component {
     constructor(props) {
@@ -38,6 +41,20 @@ export class App extends React.Component {
         this.saveAnswer = this.saveAnswer.bind(this);
         this.prepareEvaluation = this.prepareEvaluation.bind(this);
         this.saveEvaluation = this.saveEvaluation.bind(this);
+    }
+
+    componentDidMount() {
+        const urlParams = new URL(window.location.href).searchParams.get("g");
+
+        if (urlParams) {
+            socket.emit("gameId", urlParams);
+        }
+
+        socket.on("gameStart", (val) => {
+            if (val) {
+                this.setState({ screen: "game" });
+            }
+        });
     }
 
     prepareEvaluation(data) {
@@ -125,12 +142,26 @@ export class App extends React.Component {
 
     render() {
         if (this.state.screen === "setup") {
+            // const urlParams = new URL(window.location.href).searchParams.get("g");
+
+            // if (urlParams) {
+            //     socket.emit("gameId", urlParams);
+            // }
+
+            // socket.on("gameStart", (val) => {
+            //     if (val) {
+            //         this.setState({ screen: "game" });
+            //     }
+            // });
+
+
             return (
                 <SetupGame
                     setData={this.setData}
                     setGame={this.setGame}
                     gameDefaults={this.state.gameData.settings}
-                />);
+                />
+            );
         }
         if (this.state.screen === "game") {
             return (
