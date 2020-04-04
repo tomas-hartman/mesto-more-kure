@@ -44,16 +44,15 @@ export class App extends React.Component {
     }
 
     componentDidMount() {
-        const urlParams = new URL(window.location.href).searchParams.get("g");
 
-        if (urlParams) {
-            socket.emit("gameId", urlParams);
-        }
+        const interval = setInterval(() => {
+            // tohle bude vysílat pouze pokud bude state: ({gameStart: pending}) nebo pokud bude v parametru id hry - nastavený state: ({game: gameId})
+            socket.emit("shallGameStart");
+        }, 100);
 
-        socket.on("gameStart", (val) => {
-            if (val) {
-                this.setState({ screen: "game" });
-            }
+        socket.on("startGame", (value) => {
+            clearInterval(interval);
+            this.setState({ screen: "game" });
         });
     }
 
@@ -141,20 +140,16 @@ export class App extends React.Component {
     }
 
     render() {
+        // const urlParams = new URL(window.location.href).searchParams.get("g");
+
+        // if (urlParams) {
+        //     console.log("urlParams ", urlParams);
+
+        //     // socket.emit("registerPlayer", urlParams);
+        //     socket.emit("gameId", urlParams);
+        // }
+
         if (this.state.screen === "setup") {
-            // const urlParams = new URL(window.location.href).searchParams.get("g");
-
-            // if (urlParams) {
-            //     socket.emit("gameId", urlParams);
-            // }
-
-            // socket.on("gameStart", (val) => {
-            //     if (val) {
-            //         this.setState({ screen: "game" });
-            //     }
-            // });
-
-
             return (
                 <SetupGame
                     setData={this.setData}

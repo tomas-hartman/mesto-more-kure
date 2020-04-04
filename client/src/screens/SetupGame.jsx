@@ -28,35 +28,12 @@ class GameStartElm extends React.Component {
         3. vygenerovat kola + kategorie
          */
 
-        const gameId = this.makeId(20);
-
         const settings = { // defaults
             playersNum: 2,
             categoriesNum: 5,
             roundsNum: 3,
-            id: gameId
+            id: "game_id"
         }
-
-        // TOHLE BUDE GENEROVAT SERVER
-
-        // const players = [];
-
-        // for (let j = 0; j < playersNum; j++) {
-        //     const player = {
-        //         nick: `Player ${j}`,
-        //         id: `player_${j}_id`,
-        //     }
-
-        //     console.log(player);
-        //     players.push(player);
-        // }
-
-
-        this.setState({ gameId: gameId });
-        this.setState({ pending: true });
-
-
-        socket.emit("gameSettings", settings);
 
         // Potom čekám na server, až mi pošle change screen rozhodnutí.
 
