@@ -4,6 +4,7 @@ const io = require("socket.io")(http);
 const categoriesList = require("./data/categories");
 
 let connections = [];
+const games = {};
 const game = {
   id: "",
   gameSettings: {},
@@ -40,7 +41,10 @@ const genCategories = (roundsNum, categoriesNum) => {
 };
 
 const createGamePlan = data => {
-  let { categoriesNum, roundsNum } = data;
+  let {
+    categoriesNum,
+    roundsNum
+  } = data;
   let gamePlan = {};
 
   let rounds = genRounds(roundsNum);
@@ -55,6 +59,26 @@ const createGamePlan = data => {
 io.origins("*:*");
 
 io.on("connection", socket => {
+  // Create game
+  const requestUrl = new URL(socket.request.headers.referer);
+  const urlParams = requestUrl.searchParams;
+
+  console.log(urlParams.get("g"));
+
+  if (urlParams.get("g")) {
+    games["randomGameId"] = {};
+    console.log(games);
+    // new Game
+    // vygeneruj nový gameId a emitni ho zpátky requestu
+  } else {
+    console.log("Takhle to nepůjde");
+    //check for a game with params.g === xyz
+    // if(game with params.g === xyz neexistuje){
+    // refresh headers, smaž parametr a založ novou hru
+    // } else {
+    // přidej do hry novýho hráče a následně všem hráčům ve hře pošli startGame
+    // }
+  }
   console.log("a user connected ", socket.id);
 
   // temp: players
@@ -76,6 +100,8 @@ io.on("connection", socket => {
     if (connections.includes(socket.id)) {
       connections.splice(connections.indexOf(socket.id), 1);
     }
+
+    // odstraní game, ve které byli hráči připojeni
 
     // delete gameState.players[socket.id]
 
