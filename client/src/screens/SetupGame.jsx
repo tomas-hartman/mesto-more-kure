@@ -35,6 +35,11 @@ class GameStartElm extends React.Component {
             id: "game_id"
         }
 
+        socket.emit("gameSettings", settings);
+        this.props.setAppState({
+            startState: "pending",
+        });
+        this.setState({ pending: true });
         // Potom čekám na server, až mi pošle change screen rozhodnutí.
 
     }
@@ -109,7 +114,10 @@ export class SetupGame extends React.Component {
                         </tbody>
                     </table>
 
-                    < GameStartElm gameDefaults={this.props.gameDefaults} />
+                    < GameStartElm
+                        setAppState={this.props.setAppState}
+                        gameDefaults={this.props.gameDefaults}
+                    />
                 </div>
             </main>
         )

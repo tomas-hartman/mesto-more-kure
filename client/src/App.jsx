@@ -15,6 +15,7 @@ export class App extends React.Component {
             screen: "setup",
             // screen: "results",
             // screen: "evaluation",
+            startState: null,
             gameProgress: {
                 round: 1,
                 word: 1,
@@ -36,23 +37,29 @@ export class App extends React.Component {
             }
         }
         this.setGame = this.setGame.bind(this);
-        this.setData = this.setData.bind(this);
+        this.setData = this.setAppState.bind(this);
         this.updateGameProgress = this.updateGameProgress.bind(this);
         this.saveAnswer = this.saveAnswer.bind(this);
         this.prepareEvaluation = this.prepareEvaluation.bind(this);
         this.saveEvaluation = this.saveEvaluation.bind(this);
+        this.setAppState = this.setAppState.bind(this);
     }
 
     componentDidMount() {
 
         const interval = setInterval(() => {
             // tohle bude vysílat pouze pokud bude state: ({gameStart: pending}) nebo pokud bude v parametru id hry - nastavený state: ({game: gameId})
+            // shallGameStart bude posílat i id hry
             socket.emit("shallGameStart");
         }, 100);
 
         socket.on("startGame", (value) => {
             clearInterval(interval);
             this.setState({ screen: "game" });
+        });
+
+        socket.on("gameId", id => {
+            this.setState({ gameId: id }); // pro tohle id se potom vygeneruje link v podobě ?g=__id__
         });
     }
 
@@ -68,7 +75,7 @@ export class App extends React.Component {
         this.setState({ evaluation: currentEvaluation });
     }
 
-    setData(data) {
+    setAppState(data) {
         // {screen: "game"} etc.
         this.setState(data);
     }
@@ -152,7 +159,7 @@ export class App extends React.Component {
         if (this.state.screen === "setup") {
             return (
                 <SetupGame
-                    setData={this.setData}
+                    setAppState={this.setAppState}
                     setGame={this.setGame}
                     gameDefaults={this.state.gameData.settings}
                 />
@@ -174,7 +181,7 @@ export class App extends React.Component {
                     gameData={this.state.gameData.game}
                     prepareEvaluation={this.prepareEvaluation}
                     saveEvaluationToApp={this.saveEvaluation}
-                    setData={this.setData}
+                    setData={this.setAppState}
                 // gameProgress={this.state.gameProgress}
                 // saveAnswer={this.saveAnswer}
                 // updateGameProgress={this.updateGameProgress}
