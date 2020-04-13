@@ -1,16 +1,37 @@
 import React from 'react';
+import socket from '../SocketContext';
 
 export class GameScreen extends React.Component {
     constructor(props) {
         super(props);
         this.onClick = this.onClick.bind(this);
         this._handleKeyDown = this._handleKeyDown.bind(this);
+        this.state = {
+            roundNum: 1,
+            categoryNum: 1,
+            answered: [],
+            letter: "",
+            category: ""
+        }
     }
 
     _handleKeyDown(e) {
         if (e.key === "Enter") {
             this.onClick();
         }
+    }
+
+    componentDidMount() {
+        console.log("Ahoj, component did mount");
+        const gameId = this.props.gameId;
+
+        socket.emit("getNextTurn", gameId);
+        socket.on("nextTurn", data => {
+            let { letter, category } = data;
+            console.log(data);
+            this.setState({ category });
+            this.setState({ letter });
+        });
     }
 
     onClick() {
@@ -36,13 +57,16 @@ export class GameScreen extends React.Component {
     }
 
     render() {
-        const gameData = this.props.gameData;
-        let { round: roundNum, word: categoryNum } = this.props.gameProgress;
+        // const gameData = this.props.gameData;
+        // let { round: roundNum, word: categoryNum } = this.props.gameProgress;
 
-        const round = gameData.game[roundNum - 1];
+        // const round = gameData.game[roundNum - 1];
 
-        const category = round.categories[categoryNum - 1];
-        const letter = round.letter;
+        // const category = round.categories[categoryNum - 1];
+        // const letter = round.letter;
+
+        const letter = this.state.letter;
+        const category = this.state.category;
 
         return (
             <main className="screen">

@@ -5,13 +5,27 @@ const categoriesList = require("./data/categories");
 
 let connections = [];
 const games = {};
-const game = {
-  id: "",
-  gameSettings: {},
-  players: [],
-  gamePlan: {}
-};
 
+/**
+ * Generuje gameId
+ * @param {number} length = 12 default
+ */
+const generateId = (length = 12) => {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+/**
+ * Game constructing function
+ * @param {string} gameId 
+ * @param {string} player First player socket.id
+ * @todo možná změnit player na object, protože player se bude identifikovat jako objekt
+ */
 const Game = (gameId, player) => {
   const game = {
     id: "",
@@ -19,19 +33,22 @@ const Game = (gameId, player) => {
     players: [],
     gamePlan: {},
     progress: {
+      state: null,
       round: 1,
       category: 1,
       answered: []
     }
   };
 
-  const settings = { // defaults
+  // defaults:
+  const settings = {
     playersNum: 2,
     categoriesNum: 5,
     roundsNum: 3,
   };
 
-  function genRounds(num) {
+  // methods:
+  const genRounds = (num) => {
     const letters = "abcdefghijklmnopqrstuvwxyz";
     const letterList = [];
 
@@ -80,7 +97,6 @@ const Game = (gameId, player) => {
     roundsNum: settings.roundsNum
   });
 
-
   game.id = gameId;
   game.settings = settings;
   game.players.push(player);
@@ -89,64 +105,49 @@ const Game = (gameId, player) => {
   return game;
 }
 
-
 io.origins("*:*");
 
 io.on("connection", socket => {
   console.log("User connected with id: ", socket.id);
 
-  // Create game
+  // Initialize game
   const requestUrl = new URL(socket.request.headers.referer);
   const urlParams = requestUrl.searchParams;
-
   const gameIdInParam = urlParams.get("g")
+
   console.log("Game id in param: ", gameIdInParam);
 
+  // check if gameParam is present:
   if (gameIdInParam) {
-    // console.log(games);
-    if (games.hasOwnProperty(gameIdInParam)) { // check if game in fact exists
+    // check if game in fact exists (is initialized):
+    if (games.hasOwnProperty(gameIdInParam)) {
       // start new Game, add new Player
       // @todo broadcast gameId to the player - here, do not do it in frontend
       console.log("add new Player to the game");
       games[gameIdInParam].players.push(socket.id); // přidat: !connections.includes(socket.id)
       console.log(games);
     } else {
-      // restartuj request
+      // restartuj request s neexistujícím gameId
       console.error("Err: wrong request. Restartuj request.");
       socket.emit("restartRequest");
     }
-    // new Game
-    // vygeneruj nový gameId a emitni ho zpátky requestu
-
-    // check for a game with params.g === xyz
-    // if(game with params.g === xyz neexistuje){
-    // refresh headers, smaž parametr a založ novou hru
-    // } else {
-    // přidej do hry novýho hráče a následně všem hráčům ve hře pošli startGame
-    // }
   } else {
+    // Nemá dělat nic, dokud nekliknu na "začít hru". GameId se generuje až tam
     console.log("Nová hra, zatím se nikde nic negeneruje.");
-
-    // asi to nemá udělat nic, dokud nekliknu na btn, gameId se generuje až tam
   }
 
+  // Generate new game:
   socket.on("registerNewGame", () => {
-    // Generate new game
     const randomGameId = "randomGameId";
+    // const randomGameId = generateId(); // odkomentovat, až se vyřeší on.disconnect
 
     if (!games.hasOwnProperty(randomGameId)) {
       const game = Game(randomGameId, socket.id);
 
-      console.log(game.gamePlan.rounds);
-      console.log(game.gamePlan.categories);
+      // console.log(game.gamePlan.rounds);
+      // console.log(game.gamePlan.categories);
 
       games[randomGameId] = game;
-
-      // games[randomGameId] = {
-      //   players: [socket.id],
-      // };
-
-      // games[randomGameId].players.push()
 
       console.log("Posílám gameId: ", randomGameId);
       console.log(games);
@@ -159,12 +160,37 @@ io.on("connection", socket => {
    * Checks if conditional number of players is connected to the game
    */
   socket.on("shallGameStart", (gameId) => {
-    // pozor! shall game start valí v intervalu, vymyslet jak optimalizovat
-    // gameId ? console.log(games[gameId].players.length) : console.log("nevím");
-    if (gameId && games.hasOwnProperty(gameId) && games[gameId].players.length === 2) {
+    // pozor! shall game start valí v intervalu, vymyslet, jak optimalizovat!
+    if (gameId && games.hasOwnProperty(gameId) && games[gameId].players.length === games[gameId].settings.playersNum) {
       console.log(gameId);
+
+      const game = games[gameId];
+      game.progress.state = "started";
       socket.emit("startGame");
     }
+  });
+
+  socket.on("getNextTurn", (id) => {
+    let {
+      settings,
+      gamePlan,
+      progress
+    } = games[id];
+
+    // @todo add conditionals for the endings
+    const roundId = progress.round;
+    const categoryId = progress.category;
+
+    const response = {
+      letter: gamePlan.rounds[roundId],
+      category: gamePlan.categories[roundId][categoryId],
+    }
+
+    // progress.category++; // tohle taky oconditionalovat: tohle ++ pouze ve chvíli, kdy odpoví všichni hráči
+
+    console.log(games[id]);
+
+    socket.emit("nextTurn", response);
   });
 
   socket.on("disconnect", () => {
@@ -174,16 +200,11 @@ io.on("connection", socket => {
       connections.splice(connections.indexOf(socket.id), 1);
     }
 
-    // @todo temp řešení problému s přidáváním duplicit
+    // odstranit game, ve které byli odpojení hráči připojeni
+    // @todo temp řešení problému s přidáváním duplicit a mazáním neaktivních her!
     if (games.hasOwnProperty("randomGameId")) {
       delete games["randomGameId"];
     }
-
-    // odstraní game, ve které byli hráči připojeni
-
-    // delete gameState.players[socket.id]
-
-    // handling - pokud je to hráč, kterej je zařazenej do gameId, pak konec hry a smazání té instance hry
   });
 });
 

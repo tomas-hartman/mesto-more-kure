@@ -51,7 +51,7 @@ export class App extends React.Component {
         const urlParams = requestUrl.searchParams;
         const gameIdInParam = urlParams.get("g");
 
-        console.log(gameIdInParam);
+        console.log(gameIdInParam); // zvážit jeho validování na serveru!
 
         const interval = setInterval(() => {
             // tohle bude vysílat pouze pokud bude state: ({gameStart: pending}) nebo pokud bude v parametru id hry - nastavený state: ({game: gameId})
@@ -59,7 +59,7 @@ export class App extends React.Component {
             socket.emit("shallGameStart", gameId);
         }, 100);
 
-        socket.on("startGame", (value) => {
+        socket.on("startGame", () => {
             clearInterval(interval);
             this.setState({ startGameState: "started" });
             this.setState({ screen: "game" });
@@ -164,15 +164,6 @@ export class App extends React.Component {
     }
 
     render() {
-        // const urlParams = new URL(window.location.href).searchParams.get("g");
-
-        // if (urlParams) {
-        //     console.log("urlParams ", urlParams);
-
-        //     // socket.emit("registerPlayer", urlParams);
-        //     socket.emit("gameId", urlParams);
-        // }
-
         if (this.state.screen === "setup") {
             return (
                 <SetupGame
@@ -187,8 +178,10 @@ export class App extends React.Component {
         if (this.state.screen === "game") {
             return (
                 < GameScreen
-                    gameData={this.state.gameData}
-                    gameProgress={this.state.gameProgress}
+                    gameId={this.state.gameId}
+                    // the other are unneccessary and handled by server
+                    gameData={this.state.gameData} // bude posílat server
+                    gameProgress={this.state.gameProgress} // bude generovat sám server
                     saveAnswer={this.saveAnswer}
                     updateGameProgress={this.updateGameProgress}
                 />
@@ -201,9 +194,6 @@ export class App extends React.Component {
                     prepareEvaluation={this.prepareEvaluation}
                     saveEvaluationToApp={this.saveEvaluation}
                     setData={this.setAppState}
-                // gameProgress={this.state.gameProgress}
-                // saveAnswer={this.saveAnswer}
-                // updateGameProgress={this.updateGameProgress}
                 />
             );
         }

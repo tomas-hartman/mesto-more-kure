@@ -11,16 +11,6 @@ class GameStartElm extends React.Component {
         }
     }
 
-    makeId = (length) => {
-        var result = '';
-        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        var charactersLength = characters.length;
-        for (var i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-        return result;
-    }
-
     startGame(playersNum, categoriesNum, roundsNum) {
         /* 
         1. vybrat písmeno
@@ -35,7 +25,7 @@ class GameStartElm extends React.Component {
             id: "game_id"
         }
 
-        socket.emit("gameSettings", settings);
+        socket.emit("gameSettings", settings); // @todo má posílat pouze to, co si nastaví uživatel, bude se posílat v rámci registerNewGame
         socket.emit("registerNewGame");
         this.props.setAppState({
             startGameState: "waitForId",
@@ -63,35 +53,6 @@ class GameStartElm extends React.Component {
 }
 
 export class SetupGame extends React.Component {
-
-    // genLetter() {
-    //     const letters = "abcdefghijklmnopqrstuvwxyz";
-    //     const letter = letters[Math.floor(Math.random() * letters.length)];
-
-    //     return letter;
-    // }
-
-    // genCategories(categoriesNum) {
-    //     const data = [];
-
-    //     for (let i = 0; i < categoriesNum; i++) {
-    //         data.push(categories[Math.floor(Math.random() * categories.length)]);
-    //     }
-
-    //     return data;
-    // }
-
-
-
-    componentDidMount() {
-        // socket.on("gameStart", (val) => {
-        //     if (val) {
-        //         this.props.setData({ screen: "game" });
-        //         console.log("Game started");
-        //     }
-        // });
-    }
-
     render() {
         const { playersNum, categoriesNum, roundsNum } = this.props.gameDefaults;
 
