@@ -36,10 +36,11 @@ class GameStartElm extends React.Component {
         }
 
         socket.emit("gameSettings", settings);
+        socket.emit("registerNewGame");
         this.props.setAppState({
-            startState: "pending",
+            startGameState: "waitForId",
         });
-        this.setState({ pending: true });
+        // this.setState({ pending: true });
         // Potom čekám na server, až mi pošle change screen rozhodnutí.
 
     }
@@ -47,13 +48,13 @@ class GameStartElm extends React.Component {
     render() {
         const { playersNum, categoriesNum, roundsNum } = this.props.gameDefaults;
 
-        const gameLink = `${window.location.href}?g=${this.state.gameId}`;
+        const gameLink = `${window.location.href}?g=${this.props.gameId}`;
         let elm = "";
 
         const input = <input type="text" name="game-link" value={gameLink} />;
         const btn = <button onClick={() => this.startGame(playersNum, categoriesNum, roundsNum)}>Začít hru</button>;
 
-        if (this.state.pending) {
+        if (this.props.startGameState) {
             return input;
         } else {
             return btn;
@@ -117,6 +118,8 @@ export class SetupGame extends React.Component {
                     < GameStartElm
                         setAppState={this.props.setAppState}
                         gameDefaults={this.props.gameDefaults}
+                        startGameState={this.props.startGameState}
+                        gameId={this.props.gameId}
                     />
                 </div>
             </main>

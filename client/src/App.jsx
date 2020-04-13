@@ -15,7 +15,8 @@ export class App extends React.Component {
             screen: "setup",
             // screen: "results",
             // screen: "evaluation",
-            startState: null,
+            startGameState: null,
+            gameId: null,
             gameProgress: {
                 round: 1,
                 word: 1,
@@ -46,21 +47,37 @@ export class App extends React.Component {
     }
 
     componentDidMount() {
+        const requestUrl = new URL(window.location);
+        const urlParams = requestUrl.searchParams;
+        const gameIdInParam = urlParams.get("g");
+
+        console.log(gameIdInParam);
 
         const interval = setInterval(() => {
             // tohle bude vysílat pouze pokud bude state: ({gameStart: pending}) nebo pokud bude v parametru id hry - nastavený state: ({game: gameId})
-            // shallGameStart bude posílat i id hry
-            socket.emit("shallGameStart");
+            const gameId = this.state.gameId;
+            socket.emit("shallGameStart", gameId);
         }, 100);
 
         socket.on("startGame", (value) => {
             clearInterval(interval);
+            this.setState({ startGameState: "started" });
             this.setState({ screen: "game" });
         });
 
-        socket.on("gameId", id => {
-            this.setState({ gameId: id }); // pro tohle id se potom vygeneruje link v podobě ?g=__id__
+        socket.on("restartRequest", () => {
+            const url = new URL(window.location)
+            window.location = url.origin;
         });
+
+        if (gameIdInParam) {
+            this.setState({ gameId: gameIdInParam });
+        } else {
+            socket.on("gameId", id => {
+                this.setState({ gameId: id }); // pro tohle id se potom vygeneruje link v podobě ?g=__id__
+                this.setState({ startGameState: "pending" });
+            });
+        }
     }
 
     prepareEvaluation(data) {
@@ -162,6 +179,8 @@ export class App extends React.Component {
                     setAppState={this.setAppState}
                     setGame={this.setGame}
                     gameDefaults={this.state.gameData.settings}
+                    startGameState={this.state.startGameState}
+                    gameId={this.state.gameId}
                 />
             );
         }
