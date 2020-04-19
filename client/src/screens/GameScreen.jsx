@@ -21,29 +21,58 @@ export class GameScreen extends React.Component {
         }
     }
 
+    componentWillMount() {
+        const gameId = this.props.gameId;
+        socket.emit("getTurn", gameId);
+    }
+
     componentDidMount() {
         console.log("Ahoj, component did mount");
         const gameId = this.props.gameId;
 
-        socket.emit("getNextTurn", gameId);
-        socket.on("nextTurn", data => {
+        // socket.emit("getNextTurn", gameId);
+        // socket.on("nextTurn", data => {
+        //     let { letter, category } = data;
+        //     console.log(data);
+        //     this.setState({ category });
+        //     this.setState({ letter });
+        // });
+
+        socket.on("turn", data => {
             let { letter, category } = data;
             console.log(data);
             this.setState({ category });
             this.setState({ letter });
-        });
+        })
     }
 
     onClick() {
-        const playerId = this.props.gameData.players[0].id; // @todo!
-        let value = document.querySelector("input").value;
-        this.props.saveAnswer(playerId, value);
+        const gameId = this.props.gameId;
+        // const interval = setInterval(() => {
+        //     socket.emit("getNextTurn", gameId);
+        // }, 100);
 
-        console.log(value);
+        // socket.on("nextTurn", () => {
+        //     clearInterval(interval);
+        // })
 
-        document.querySelector("input").value = "";
+        // socket.emit("stageForNextTurn", gameId);
+        // socket.on("nextTurn", data => {
+        //     let { letter, category } = data;
+        //     console.log(data);
+        //     this.setState({ category });
+        //     this.setState({ letter });
+        // });
 
-        this.props.updateGameProgress();
+        // const playerId = this.props.gameData.players[0].id; // @todo!
+        // let value = document.querySelector("input").value;
+        // this.props.saveAnswer(playerId, value);
+
+        // console.log(value);
+
+        // document.querySelector("input").value = "";
+
+        // this.props.updateGameProgress();
 
         // const answerObj =
         /**

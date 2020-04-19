@@ -46,38 +46,39 @@ export class App extends React.Component {
         this.setAppState = this.setAppState.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const requestUrl = new URL(window.location);
         const urlParams = requestUrl.searchParams;
         const gameIdInParam = urlParams.get("g");
 
         console.log(gameIdInParam); // zvážit jeho validování na serveru!
 
-        const interval = setInterval(() => {
-            // tohle bude vysílat pouze pokud bude state: ({gameStart: pending}) nebo pokud bude v parametru id hry - nastavený state: ({game: gameId})
-            const gameId = this.state.gameId;
-            socket.emit("shallGameStart", gameId);
-        }, 100);
-
-        socket.on("startGame", () => {
-            clearInterval(interval);
-            this.setState({ startGameState: "started" });
-            this.setState({ screen: "game" });
-        });
-
         socket.on("restartRequest", () => {
             const url = new URL(window.location)
             window.location = url.origin;
         });
 
-        if (gameIdInParam) {
+        if (gameIdInParam && gameIdInParam !== "null") {
             this.setState({ gameId: gameIdInParam });
+            socket.emit("waitingForPlayers", gameIdInParam);
         } else {
             socket.on("gameId", id => {
                 this.setState({ gameId: id }); // pro tohle id se potom vygeneruje link v podobě ?g=__id__
                 this.setState({ startGameState: "pending" });
+                socket.emit("waitingForPlayers", id);
             });
         }
+
+        const promise = new Promise((resolve, reject) => {
+            socket.on("startGame", (val) => {
+                resolve(val);
+            });
+        });
+        promise.then((res) => {
+            alert(res);
+            this.setState({ startGameState: "started" });
+            this.setState({ screen: "game" });
+        });
     }
 
     prepareEvaluation(data) {

@@ -36,7 +36,9 @@ const Game = (gameId, player) => {
       state: null,
       round: 1,
       category: 1,
-      answered: []
+      answered: [],
+      temp: [],
+      firstTurn: true,
     }
   };
 
@@ -117,8 +119,11 @@ io.on("connection", socket => {
 
   console.log("Game id in param: ", gameIdInParam);
 
+  socket.emit("resolveStartPromise", "Promise resolved bitch");
+
   // check if gameParam is present:
   if (gameIdInParam) {
+    console.log(gameIdInParam);
     // check if game in fact exists (is initialized):
     if (games.hasOwnProperty(gameIdInParam)) {
       // start new Game, add new Player
@@ -155,42 +160,66 @@ io.on("connection", socket => {
     }
   });
 
-  /*
-   * Shall game start
-   * Checks if conditional number of players is connected to the game
-   */
-  socket.on("shallGameStart", (gameId) => {
-    // pozor! shall game start valí v intervalu, vymyslet, jak optimalizovat!
-    if (gameId && games.hasOwnProperty(gameId) && games[gameId].players.length === games[gameId].settings.playersNum) {
-      console.log(gameId);
+  socket.on("waitingForPlayers", async gameId => {
+    // tady by měla vzniknout promise čekající na přihlášení do hry
+    const promise = new Promise((resolve, reject) => {
+      const interval = setInterval(() => {
+        if (gameId && games.hasOwnProperty(gameId) && games[gameId].players.length === games[gameId].settings.playersNum) {
+          clearInterval(interval);
 
-      const game = games[gameId];
-      game.progress.state = "started";
-      socket.emit("startGame");
-    }
+          const game = games[gameId];
+          game.progress.state = "started";
+          resolve();
+          // socket.emit("startGame");
+        }
+      }, 100);
+    });
+    promise.then(() => {
+      socket.emit("startGame", "Promise rozřešena");
+      // tady musím poslat kolo.
+    });
   });
 
-  socket.on("getNextTurn", (id) => {
+
+
+
+  socket.on("__getNextTurn", (id) => {
     let {
       settings,
       gamePlan,
       progress
     } = games[id];
 
-    // @todo add conditionals for the endings
-    const roundId = progress.round;
-    const categoryId = progress.category;
+    if (progress.temp.length === settings.playersNum || progress.firstTurn) {
+      // @todo add conditionals for the endings
+      const roundId = progress.round;
+      const categoryId = progress.category;
 
-    const response = {
-      letter: gamePlan.rounds[roundId],
-      category: gamePlan.categories[roundId][categoryId],
+      const response = {
+        letter: gamePlan.rounds[roundId],
+        category: gamePlan.categories[roundId][categoryId],
+      }
+
+      progress.category++;
+      progress.temp = [];
+      // progress.firstTurn = false;
+
+      console.log(games[id]);
+
+      socket.emit("nextTurn", response);
+      // progress.category++; // tohle taky oconditionalovat: tohle ++ pouze ve chvíli, kdy odpoví všichni hráči
     }
+  });
 
-    // progress.category++; // tohle taky oconditionalovat: tohle ++ pouze ve chvíli, kdy odpoví všichni hráči
+  socket.on("__stageForNextTurn", id => {
+    let {
+      progress
+    } = games[id];
 
-    console.log(games[id]);
-
-    socket.emit("nextTurn", response);
+    if (!progress.temp.includes(socket.id)) {
+      progress.temp.push(socket.id);
+      console.log(progress.temp);
+    }
   });
 
   socket.on("disconnect", () => {
